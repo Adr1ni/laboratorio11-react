@@ -1,25 +1,79 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useState } from 'react';
+import TareaForm from './TareaForm';
+import ListaTareas from './ListaTareas';
+import Filtros from './Filtros';
 
 function App() {
+  const [tareas, setTareas] = useState([]);
+  const [filtro, setFiltro] = useState("Todas");
+
+  const agregarTarea = (texto) => {
+    setTareas([...tareas, { texto, completada: false }]);
+  };
+
+  const eliminarTarea = (index) => {
+    const nuevasTareas = [...tareas];
+    nuevasTareas.splice(index, 1);
+    setTareas(nuevasTareas);
+  };
+
+  const editarTarea = (index, nuevoTexto) => {
+    const nuevasTareas = [...tareas];
+    nuevasTareas[index].texto = nuevoTexto;
+    setTareas(nuevasTareas);
+  };
+
+  const toggleCompletada = (index) => {
+    const nuevasTareas = [...tareas];
+    nuevasTareas[index].completada = !nuevasTareas[index].completada;
+    setTareas(nuevasTareas);
+  };
+
+  const filtrarTareas = (filtro) => {
+    setFiltro(filtro);
+  };
+
+  let tareasFiltradas = tareas;
+  if (filtro === "Pendientes") {
+    tareasFiltradas = tareas.filter((tarea) => !tarea.completada);
+  } else if (filtro === "Completadas") {
+    tareasFiltradas = tareas.filter((tarea) => tarea.completada);
+  } else if (filtro === 'ascendente') {
+    tareasFiltradas.sort((a, b) => {
+      if (a.texto < b.texto) {
+        return -1;
+      }
+      if (a.texto > b.texto) {
+        return 1;
+      }
+      return 0;
+    });
+  } else if (filtro === 'descendente') {
+    tareasFiltradas.sort((a, b) => {
+      if (a.texto > b.texto) {
+        return -1;
+      }
+      if (a.texto < b.texto) {
+        return 1;
+      }
+      return 0;
+    });
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <h1>Lista de Tareas</h1>
+      <TareaForm agregarTarea={agregarTarea} />
+      <Filtros filtrarTareas={filtrarTareas} />
+      <ListaTareas
+        tareas={tareasFiltradas}
+        eliminarTarea={eliminarTarea}
+        editarTarea={editarTarea}
+        toggleCompletada={toggleCompletada}
+      />
     </div>
   );
 }
 
 export default App;
+
